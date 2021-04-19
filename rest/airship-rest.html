@@ -1,0 +1,71 @@
+<script type="text/javascript">
+    RED.nodes.registerType('Airship REST', {
+        category: "Airship REST",
+        icon: "icons/airship.svg",
+        color: '#F8665A',
+        inputs: 1,
+        outputs: 2,
+        outputLabels:['success','error'],
+        defaults: {
+            name:    { value: "" },
+            version: { value: "" },
+            method:  { value: "" },
+            env:     {value: ""}
+        },
+        label: function () {
+            return this.name || "Airship REST"
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="Airship REST">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-version"><i class="fa fa-tag"></i> API Version</label>
+        <select id="node-input-version">
+            <option value="">Select API Version</option>
+            <option value="v1/">V1</option>
+        </select>
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-method"><i class="fa fa-tag"></i> Method</label>
+        <select id="node-input-method">
+            <option value="">Select Method</option>
+            <optgroup label="Contact API">
+                <option value="contact">POST contact</option>
+            </optgroup>
+            <optgroup label="Feedback API">
+                <option value="feedback/category">POST feedback/category</option>
+                <option value="feedback/categories">GET feedback/categories</option>
+            </optgroup>
+        </select>
+    </div>
+   
+</script>
+
+<script type="text/x-red" data-help-name="Airship REST">
+    <p>Node-red nodes that allow users to send REST request to Airship REST API methods.</p>
+
+
+    <h3>Input msg</h3>
+        
+    <pre>
+        env:'dev', // can be passed here to select dev environment
+        method:'contact', // can either be passed in here, or selected in the dropdown of the node
+        payload: {// REST payload as per the docs
+                "token":"token_here" // the API token
+                "body" : {...} // the method params/body object
+             }
+    </pre>
+
+    <h3>Outputs:</h3>
+    <ul>
+        <li>1. success payload from API (see docs)</li>
+        <li>2. error</li>
+    </ul>
+</script>
