@@ -2,9 +2,9 @@ const axios = require('axios');
 
 /**
  * Makes a rest call
- * @param  {[string]} url    [url to call]
- * @param  {[string]} httpMethod  [REST httpMethod]
- * @param  {[json]} payload [payload]
+ * @param  {[string]} url         [url to call]
+ * @param  {[string]} httpMethod  [REST http method]
+ * @param  {[json]}   payload     [payload]
  * @return {[promise]}        
  */
 
@@ -18,7 +18,7 @@ return new Promise((resolve, reject) => {
                 method: httpMethod,
                 url: url,
                 responseType: 'json',
-                headers: {  
+                headers: {
                     'Authorization': 'Bearer ' + payload.token,
                     'content-type': 'application/json' 
                 },
@@ -32,7 +32,7 @@ return new Promise((resolve, reject) => {
             });
 
         } catch (err) {
-            return reject("Error : "+err);
+            return reject("Error : " + err);
         }
     });
 }

@@ -10,7 +10,7 @@
             name:    { value: "" },
             version: { value: "" },
             method:  { value: "" },
-            env:     {value: ""}
+            env:     { value: "" }
         },
         label: function () {
             return this.name || "Airship REST"
@@ -49,15 +49,17 @@
 </script>
 
 <script type="text/x-red" data-help-name="Airship REST">
-    <p>Node-red nodes that allow users to send REST request to Airship REST API methods.</p>
+    <p>Node-red nodes that allow users to send requests to Airship REST API methods.</p>
 
 
     <h3>Input msg</h3>
         
     <pre>
         env:'dev', // can be passed here to select dev environment
+
         method:'contact', // can either be passed in here, or selected in the dropdown of the node
-        payload: {// REST payload as per the docs
+
+        payload: { // REST payload as per the docs
                 "token":"token_here" // the API token
                 "body" : {...} // the method params/body object
              }
