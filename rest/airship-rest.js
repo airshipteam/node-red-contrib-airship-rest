@@ -9,8 +9,7 @@ module.exports = function (RED) {
 		this.method  = n.method;
 		this.payload = n.payload;
         this.version = n.version;
-        this.baseUrl = n.env === "dev" ? 'https://api-airshipdev.airship.co.uk/': 'https://api.airship.co.uk/';
-        this.url     = this.baseUrl + this.version + this.method;
+        this.env = n.env;
         this.status({});
         
         this.httpMethod = (method) => {
@@ -71,8 +70,14 @@ module.exports = function (RED) {
 
         	this.showstatus("yellow","dot","Making call");
 
-            let httpMethod = this.httpMethod(this.method);
-            let url = this.url;
+            let method   = msg.method ? msg.method : this.method;
+            let version  = msg.version ? msg.version : this.version;
+            let env      = msg.env ? msg.env : this.env;
+
+            let baseUrl  = env === "dev" ? 'https://api-airshipdev.airship.co.uk/' : 'https://api.airship.co.uk/';
+            let url      = baseUrl + version + "/" + method;
+
+            let httpMethod = this.httpMethod(method);
 
 	        let res = airshiprest.call(url, httpMethod, msg.payload);
 	        res.then((res)=>{
