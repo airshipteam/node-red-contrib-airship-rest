@@ -18,7 +18,10 @@ module.exports = function (RED) {
                 case 'feedback/category':
                     return 'POST';
                     break;
+                case 'contacts':
                 case 'feedback/categories':
+                case 'account/units':
+                case 'account/email':
                     return 'GET';
                     break;
             }
@@ -73,11 +76,10 @@ module.exports = function (RED) {
             let method   = msg.method ? msg.method : this.method;
             let version  = msg.version ? msg.version : this.version;
             let env      = msg.env ? msg.env : this.env;
+            let httpMethod = msg.httpMethod ? msg.httpMethod : this.httpMethod(method);
 
             let baseUrl  = env === "dev" ? 'https://api-airshipdev.airship.co.uk/' : 'https://api.airship.co.uk/';
             let url      = baseUrl + version + "/" + method;
-
-            let httpMethod = this.httpMethod(method);
 
 	        let res = airshiprest.call(url, httpMethod, msg.payload);
 	        res.then((res)=>{
