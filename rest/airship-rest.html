@@ -38,10 +38,15 @@
             <option value="">Select Method</option>
             <optgroup label="Contact API">
                 <option value="contact">POST contact</option>
+                <option value="contacts">GET contacts</option>
             </optgroup>
             <optgroup label="Feedback API">
                 <option value="feedback/category">POST feedback/category</option>
                 <option value="feedback/categories">GET feedback/categories</option>
+            </optgroup>
+             <optgroup label="Account API">
+                <option value="account/units">Get account/units</option>
+                <option value="account/emails">Get account/emails</option>
             </optgroup>
         </select>
     </div>
@@ -58,10 +63,12 @@
         env:'dev', // can be passed here to select dev environment
 
         method:'contact', // can either be passed in here, or selected in the dropdown of the node
+        
+        httpMethod:'POST', // can either be passed in here or automatically selected by chosen option on dropdown
 
-        payload: { // REST payload as per the docs
+        payload: { 
                 "token":"token_here" // the API token
-                "body" : {...} // the method params/body object
+                "body" : {...} // REST payload as per the docs
              }
     </pre>
 
