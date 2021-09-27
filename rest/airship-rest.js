@@ -78,7 +78,22 @@ module.exports = function (RED) {
             let env      = msg.env ? msg.env : this.env;
             let httpMethod = msg.httpMethod ? msg.httpMethod : this.httpMethod(method);
 
-            let baseUrl  = env === "dev" ? 'https://api-airshipdev.airship.co.uk/' : 'https://api.airship.co.uk/';
+            let baseUrl = '';
+
+            switch(env){
+                case 'dev':
+                    baseUrl = 'https://api-airshipdev.airship.co.uk/';
+                    break;
+                case 'staging':
+                    baseUrl = 'https://api-airshipdev.airship.co.uk/';
+                    break;
+                case 'production':
+                    baseUrl = 'https://api.airship.co.uk/';
+                    break;
+                default:
+                    baseUrl = 'https://api.airship.co.uk/';
+            }
+
             let url      = baseUrl + version + "/" + method;
 
 	        let res = airshiprest.call(url, httpMethod, msg.payload);
