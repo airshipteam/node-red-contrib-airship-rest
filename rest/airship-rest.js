@@ -16,13 +16,14 @@ module.exports = function (RED) {
             switch(method) {
                 case 'contact':
                 case 'feedback/category':
+                case 'post_bookings':
                     return 'POST';
                     break;
                 case 'contacts':
                 case 'feedback/categories':
                 case 'account/units':
                 case 'account/email':
-                case 'bookings':
+                case 'get_bookings':
                     return 'GET';
                     break;
             }
@@ -75,9 +76,12 @@ module.exports = function (RED) {
         	this.showstatus("yellow","dot","Making call");
 
             let method   = msg.method ? msg.method : this.method;
+            let httpMethod = msg.httpMethod ? msg.httpMethod : this.httpMethod(method);
             let version  = msg.version ? msg.version : this.version;
             let env      = msg.env ? msg.env : this.env;
-            let httpMethod = msg.httpMethod ? msg.httpMethod : this.httpMethod(method);
+
+            // correct REST method in case it's a dual name
+            if (method === 'post_bookings' || method === 'get_bookings') method = 'bookings';
 
             let baseUrl = '';
 
