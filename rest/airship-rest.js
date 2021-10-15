@@ -22,6 +22,7 @@ module.exports = function (RED) {
                 case 'feedback/categories':
                 case 'account/units':
                 case 'account/email':
+                case 'bookings':
                     return 'GET';
                     break;
             }
