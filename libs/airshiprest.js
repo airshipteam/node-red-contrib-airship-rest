@@ -12,27 +12,31 @@ const axios = require('axios');
 function call(url, httpMethod, payload){
 
 return new Promise((resolve, reject) => {
-        try {
+    
+        if ((payload.contact || payload.body) && payload.token) {
+            try {
+                axios({
+                    method: httpMethod,
+                    url: url,
+                    responseType: 'json',
+                    headers: {
+                        'Authorization': 'Bearer ' + payload.token,
+                        'content-type': 'application/json' 
+                    },
+                    data: payload.contact ? payload.contact : payload.body
+                })
+                .then((response) => {
+                    resolve(response);
+                })
+                .catch((err) => {
+                    reject(err.response);
+                });
 
-            axios({
-                method: httpMethod,
-                url: url,
-                responseType: 'json',
-                headers: {
-                    'Authorization': 'Bearer ' + payload.token,
-                    'content-type': 'application/json' 
-                },
-                data: payload.body ? payload.body : ""
-            })
-            .then((response) => {
-                resolve(response);
-            })
-            .catch((err) => {
-                reject(err.response);
-            });
-
-        } catch (err) {
-            return reject("Error : " + err);
+            } catch (err) {
+                return reject("Request error: " + err);
+            }
+        } else {
+            return reject("No payload info to make the request");
         }
     });
 }

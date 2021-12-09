@@ -59,21 +59,42 @@
 
 <script type="text/x-red" data-help-name="Airship REST">
     <p>Node-red nodes that allow users to send requests to Airship REST API methods.</p>
+    <p> Select the API Version and Method options for this node to work  </p>
+
+    <h3>Input Payload </h3>
+
+    <p> Send on msg.payload only the information needed to your request according to this: </p>
+    <pre>
+To make a POST request that requires the contact object, send the contact in msg.payload.contact:
+        
+    msg.payload = { 
+        "token":"token_here" // the API token
+        "contact" : {...} // Contact Object
+    }
+        
+When using payload.contact, this node will return msg.invalidFields in case there are any.
+    </pre>
 
 
-    <h3>Input msg</h3>
+    <pre>
+To make any other request, such as a POST that don't requires the contact object (Booking update) or a GET, send the information in msg.payload.body
+        
+    msg.payload = { 
+        "token":"token_here" // the API token
+        "body" : {...} // REST payload as per docs
+    }
+    </pre>
+
+    <p> Always add the token on msg.payload.token </p>
+
+    <h3>Input options</h3>
         
     <pre>
-        env:'dev', // can be passed here to select dev environment
+env:'dev', // can be passed here to select dev, staging or production (default)
 
-        method:'contact', // can either be passed in here, or selected in the dropdown of the node
-        
-        httpMethod:'POST', // can either be passed in here or automatically selected by chosen option on dropdown
+method:'contact', // can either be passed in here, or selected in the dropdown of the node
 
-        payload: { 
-                "token":"token_here" // the API token
-                "body" : {...} // REST payload as per the docs
-             }
+httpMethod:'POST', // can either be passed in here or automatically selected by chosen option on dropdown
     </pre>
 
     <h3>Outputs:</h3>
