@@ -51,4 +51,4 @@ The first output will always be a success from the API response
 The second output will be an error either from the API or this node
 
 ## Examples
-Basic examples: ([airship_rest_example.json]())
+Basic examples: ([airship_rest_example.json](https://raw.githubusercontent.com/airshipteam/node-red-contrib-airship-rest/50b33a6120f2e05f8de0509d714cb7b99a5305e7/examples/airship_rest_example.json))
