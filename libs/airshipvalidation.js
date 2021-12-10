@@ -51,7 +51,6 @@ function validate(contact) {
             else {
                 mobileValid = false;
             }
-            console.log('emailValid', emailValid, 'mobileValid', mobileValid);
             if (!emailValid && !mobileValid) {
                 errPayload.error = "No useful data to create the contact";
                 errPayload.invalidFields = invalidFields;
