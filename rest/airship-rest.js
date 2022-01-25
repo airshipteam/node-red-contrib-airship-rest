@@ -96,6 +96,9 @@ module.exports = function (RED) {
                 case 'production':
                     baseUrl = 'https://api.airship.co.uk/';
                     break;
+		case 'fake-api':
+                    baseUrl = 'https://fake-api.airship.co.uk/';
+                    break;
                 default:
                     baseUrl = 'https://api.airship.co.uk/';
             }
