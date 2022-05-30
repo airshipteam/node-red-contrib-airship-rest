@@ -45,21 +45,44 @@ module.exports = function (RED) {
 		 * Outputs success
 		 * @param  {[string]} msg [success message]
 		 */
-        this.showsuccess = (msg,payload) => {
-            msg.payload = payload;
+        this.sendSuccess = (success_msg, payload, contact) => {
+            success_msg.payload = payload;
             this.showstatus("green", "dot", "Success");
-        	this.send([msg,null]);
+        	this.send([success_msg, this.outputToMonitor(success_msg, contact, true, success_msg), null]);
         };
 
         /**
-		 * Logs an error message
+		 * Outputs error
 		 * @param  {[string]} msg [error message]
 		 */
-        this.showerror = (msg,payload) => {
-            msg.payload = payload;
+        this.sendError = (err_msg, err, contact) => {
+            err_msg.payload = err;
             this.showstatus("red", "dot", "Error");
-        	this.send([null,msg]);
+        	this.send([null, this.outputToMonitor(err_msg, contact, false, err), err_msg]);
         };
+
+        /**
+         * Sends a monitor output
+		 * @param  {[Object]} msg [monitor output]
+         */
+        this.outputToMonitor = (original_msg, contact, success, response) => {
+            const config = original_msg.config ?? null;
+
+            let monitor_msg = Object.assign({}, original_msg);
+            monitor_msg._msgid += "_monitor";
+            monitor_msg.res_response = response
+
+            monitor_msg.payload = {
+                run_id: config & config.run_id ?? null , 
+                account_id: contact.account_id ?? null,
+                units_ids: contact.units.map(unit => (unit.id)),
+                integration_config_id: config & config.integration_config_id ?? null,
+                index: `REST_Node_${success ? 'success' : 'failed'}`, 
+                data: 1,
+                token: config & config.token ?? null
+            }
+            return monitor_msg;
+        }   
 
 
         /**
@@ -71,7 +94,6 @@ module.exports = function (RED) {
         this.showstatus = (colour, shape, text) => {
 			this.status({fill:colour,shape:shape,text:text});
         };
-
 
         this.on('input',  (msg) => {
 
@@ -110,23 +132,20 @@ module.exports = function (RED) {
 
             // Set contact if is passed
             if (payload.contact && httpMethod === 'POST' ) {
-                let valid = airshipvalidation.validate(payload.contact);
 
-                valid.then((invalidFields) => {
+                airshipvalidation.validate(payload.contact).then((invalidFields) => {
                     if (invalidFields) msg.invalidFields = invalidFields;
 
-                    let res = airshiprest.call(url, httpMethod, payload);
+                    let res =  airshiprest.call(url, httpMethod, payload);
 
                     res.then((res) => {
-                        this.showsuccess(msg, res);
+                        this.sendSuccess(msg, res, payload.contact);
                     }).catch((err) => {
-                        this.showerror(msg, err);
-                    }).finally(() => {
+                        this.sendError(msg, err, payload.contact);
                     });
 
                 }).catch((err) => {
-                    this.showerror(msg, err);
-                }).finally(() => {
+                    this.sendError(msg, err, payload.contact);
                 });
 
             } else {
@@ -134,9 +153,9 @@ module.exports = function (RED) {
                 let res = airshiprest.call(url, httpMethod, payload);
 
                 res.then((res)=>{
-                    this.showsuccess(msg,res);
+                    this.sendSuccess(msg,res, payload.body);
                 }).catch((err)=>{
-                    this.showerror(msg,err);
+                    this.sendError(msg,err, payload.body);
                 }).finally(()=>{
                 });
             }
