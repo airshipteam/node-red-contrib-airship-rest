@@ -62,8 +62,11 @@ module.exports = function (RED) {
         };
 
         /**
-         * Sends a monitor output
-		 * @param  {[Object]} msg [monitor output]
+         * Returns a monitor output object
+		 * @param  {[Object]} original_msg [original msg]
+		 * @param  {[Object]} contact      [contact object]
+		 * @param  {[Boolean]} success     [is this success or failed request]
+		 * @param  {[Object]} response     [response from api]
          */
         this.outputToMonitor = (original_msg, contact, success, response) => {
             const config = original_msg.config ?? null;
