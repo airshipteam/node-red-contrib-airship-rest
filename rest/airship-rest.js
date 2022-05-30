@@ -81,7 +81,7 @@ module.exports = function (RED) {
             var payload = {
                 run_id: null,
                 account_id: contact.account_id ?? null,
-                units_ids: contact.units.map(unit => (unit.id)),
+                units_ids: contact.units ? contact.units.map(unit => (unit.id)) : null,
                 integration_config_id: null,
                 index: `REST_Node_${success ? 'success' : 'failed'}`, 
                 data: 1,
@@ -156,6 +156,7 @@ module.exports = function (RED) {
                     let res =  airshiprest.call(url, httpMethod, payload);
 
                     res.then((res) => {
+                        console.log('HERE', payload);
                         this.sendSuccess(msg, res, payload.contact);
                     }).catch((err) => {
                         this.sendError(msg, err, payload.contact);
@@ -171,7 +172,8 @@ module.exports = function (RED) {
                 let res = airshiprest.call(url, httpMethod, payload);
 
                 res.then((res)=>{
-                    this.sendSuccess(msg,res, payload.body);
+                        console.log('HERE2', payload);
+                        this.sendSuccess(msg,res, payload.body);
                 }).catch((err)=>{
                     this.sendError(msg,err, payload.body);
                 }).finally(()=>{
