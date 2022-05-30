@@ -156,7 +156,6 @@ module.exports = function (RED) {
                     let res =  airshiprest.call(url, httpMethod, payload);
 
                     res.then((res) => {
-                        console.log('HERE', payload);
                         this.sendSuccess(msg, res, payload.contact);
                     }).catch((err) => {
                         this.sendError(msg, err, payload.contact);
@@ -172,7 +171,6 @@ module.exports = function (RED) {
                 let res = airshiprest.call(url, httpMethod, payload);
 
                 res.then((res)=>{
-                        console.log('HERE2', payload);
                         this.sendSuccess(msg,res, payload.body);
                 }).catch((err)=>{
                     this.sendError(msg,err, payload.body);
