@@ -69,21 +69,31 @@ module.exports = function (RED) {
 		 * @param  {[Object]} response     [response from api]
          */
         this.outputToMonitor = (original_msg, contact, success, response) => {
-            const config = original_msg.config ?? null;
 
-            let monitor_msg = Object.assign({}, original_msg);
+            var monitor_msg = Object.assign({}, original_msg);
             monitor_msg._msgid += "_monitor";
             monitor_msg.res_response = response
 
-            monitor_msg.payload = {
-                run_id: config & config.run_id ?? null , 
+            var payload = {
+                run_id: null,
                 account_id: contact.account_id ?? null,
                 units_ids: contact.units.map(unit => (unit.id)),
-                integration_config_id: config & config.integration_config_id ?? null,
+                integration_config_id: null,
                 index: `REST_Node_${success ? 'success' : 'failed'}`, 
                 data: 1,
-                token: config & config.token ?? null
+                token: null
             }
+
+            var config = original_msg.config ?? null;
+            
+            if (config) {
+                payload.run_id = config.run_id ?? null;
+                payload.integration_config_id = config.integration_config_id ?? null;
+                payload.token = config.token ?? null;
+            }
+
+            monitor_msg.payload = payload;
+
             return monitor_msg;
         }   
 
