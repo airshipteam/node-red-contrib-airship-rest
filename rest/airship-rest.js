@@ -34,8 +34,8 @@ module.exports = function (RED) {
         /**
 		 * Shows a status visual on the node
 		 * @param  {[string]} colour [colour of status (green, yellow, red)]
-		 * @param  {[string]} shape [shape of symbol]
-		 * @param  {[text]} text [text to show]
+		 * @param  {[string]} shape  [shape of symbol]
+		 * @param  {[string]} text   [text to show]
 		 */
         this.showstatus = (colour, shape, text) => {
 			this.status({fill:colour,shape:shape,text:text});
@@ -43,7 +43,9 @@ module.exports = function (RED) {
 
         /**
 		 * Outputs success
-		 * @param  {[string]} msg [success message]
+		 * @param  {[Object]} msg            [success complete msg]
+		 * @param  {[Object|string]} payload [success payload response]
+		 * @param  {[Object]} contact        [contact object]
 		 */
         this.sendSuccess = (success_msg, payload, contact) => {
             success_msg.payload = payload;
@@ -53,20 +55,22 @@ module.exports = function (RED) {
 
         /**
 		 * Outputs error
-		 * @param  {[string]} msg [error message]
+		 * @param  {[Object]} msg            [error complete msg]
+		 * @param  {[Object|string]} payload [error payload response]
+		 * @param  {[Object]} contact        [contact object]
 		 */
-        this.sendError = (err_msg, err, contact) => {
-            err_msg.payload = err;
+        this.sendError = (err_msg, payload, contact) => {
+            err_msg.payload = payload;
             this.showstatus("red", "dot", "Error");
-        	this.send([null, this.outputToMonitor(err_msg, contact, false, err), err_msg]);
+        	this.send([null, this.outputToMonitor(err_msg, contact, false, payload), err_msg]);
         };
 
         /**
          * Returns a monitor output object
 		 * @param  {[Object]} original_msg [original msg]
 		 * @param  {[Object]} contact      [contact object]
-		 * @param  {[Boolean]} success     [is this success or failed request]
-		 * @param  {[Object]} response     [response from api]
+		 * @param  {[Boolean]} success     [is success or failed request]
+		 * @param  {[Object]} response     [response from API]
          */
         this.outputToMonitor = (original_msg, contact, success, response) => {
 
@@ -158,7 +162,8 @@ module.exports = function (RED) {
                     });
 
                 }).catch((err) => {
-                    this.sendError(msg, err, payload.contact);
+                    this.showstatus("yellow", "dot", "validation error");
+                    this.send([null, this.outputToMonitor(msg, payload.contact, false, err), null]);
                 });
 
             } else {
