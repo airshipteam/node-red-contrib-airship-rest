@@ -72,7 +72,7 @@ module.exports = function (RED) {
 
             var monitor_msg = Object.assign({}, original_msg);
             monitor_msg._msgid += "_monitor";
-            monitor_msg.res_response = response
+            monitor_msg.rest_response = response
 
             var payload = {
                 run_id: null,
