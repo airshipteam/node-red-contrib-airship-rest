@@ -17,24 +17,21 @@
         "nodes": [
             "048d6573330ae9e1",
             "1a727a113052adc9",
-            "0f5a87beaf975c52",
-            "382fb17230bacffb",
             "19453c032a27538f",
             "24942ca71a55e34b",
-            "ab562cf7738e9278",
-            "0b69bbf7b9e4195e",
-            "04242047f35c04b7",
             "56a6afeb11469433",
             "4c04fa2ca89f6bd7",
-            "e6eeb22cdcc571f7",
-            "3ae09512be2ee7e9",
             "ef08bba91c0303a4",
-            "da9248b854410d94"
+            "da9248b854410d94",
+            "87e2a57a52f82ed1",
+            "607c1ec058ecfc02",
+            "82074952a73b236c",
+            "3138ec695635ec81"
         ],
-        "x": 74,
-        "y": 79,
-        "w": 812,
-        "h": 342
+        "x": 34,
+        "y": 39,
+        "w": 832,
+        "h": 322
     },
     {
         "id": "048d6573330ae9e1",
@@ -53,8 +50,8 @@
         "onceDelay": 0.1,
         "topic": "",
         "payloadType": "date",
-        "x": 200,
-        "y": 140,
+        "x": 160,
+        "y": 120,
         "wires": [
             [
                 "1a727a113052adc9"
@@ -67,62 +64,17 @@
         "z": "f6f2187d.f17ca8",
         "g": "d1db19fcbfa380c9",
         "name": "Payload",
-        "func": "var contact = {\n    \"email\": \"notmyemail@gmail.com\",\n    \"first_name\": \"Andre\"\n    //Other info here\n}\n\nmsg.payload = {\n  \"token\" : \"Your API Token here\",\n  \"contact\": contact\n};\n\nreturn msg;",
+        "func": "var contact = {\n    \"email\": \"notmyemail@gmail.com\",\n    \"first_name\": \"Andre\"\n    //Other info here\n}\n\nmsg.payload = {\n  \"token\" : \"Your API Token here\",\n  \"contact\": contact\n};\n\nmsg.config = {\n    \"run_id\": 123,\n    \"integration_config_id\": 321,\n    \"token\" : \"mytoken\"\n}\n\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 440,
-        "y": 140,
+        "x": 400,
+        "y": 120,
         "wires": [
             [
-                "ab562cf7738e9278"
-            ]
-        ]
-    },
-    {
-        "id": "0f5a87beaf975c52",
-        "type": "function",
-        "z": "f6f2187d.f17ca8",
-        "g": "d1db19fcbfa380c9",
-        "name": "Payload",
-        "func": "var body = {\n    \"account_id\": 1,\n    \"booking_id\": 123\n    //Other info here\n}\n\nmsg.payload = {\n  \"token\" : \"Your API Token here\",\n  \"body\": body\n};\n\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 440,
-        "y": 240,
-        "wires": [
-            [
-                "0b69bbf7b9e4195e"
-            ]
-        ]
-    },
-    {
-        "id": "382fb17230bacffb",
-        "type": "inject",
-        "z": "f6f2187d.f17ca8",
-        "g": "d1db19fcbfa380c9",
-        "name": "POST  booking (using body)",
-        "props": [
-            {
-                "p": "payload"
-            }
-        ],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payloadType": "date",
-        "x": 240,
-        "y": 240,
-        "wires": [
-            [
-                "0f5a87beaf975c52"
+                "82074952a73b236c"
             ]
         ]
     },
@@ -138,11 +90,11 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 440,
-        "y": 360,
+        "x": 400,
+        "y": 280,
         "wires": [
             [
-                "04242047f35c04b7"
+                "3138ec695635ec81"
             ]
         ]
     },
@@ -163,71 +115,11 @@
         "onceDelay": 0.1,
         "topic": "",
         "payloadType": "date",
-        "x": 230,
-        "y": 360,
+        "x": 190,
+        "y": 280,
         "wires": [
             [
                 "19453c032a27538f"
-            ]
-        ]
-    },
-    {
-        "id": "ab562cf7738e9278",
-        "type": "Airship REST",
-        "z": "f6f2187d.f17ca8",
-        "g": "d1db19fcbfa380c9",
-        "name": "",
-        "version": "v1",
-        "method": "contact",
-        "env": "",
-        "x": 610,
-        "y": 140,
-        "wires": [
-            [
-                "56a6afeb11469433"
-            ],
-            [
-                "4c04fa2ca89f6bd7"
-            ]
-        ]
-    },
-    {
-        "id": "0b69bbf7b9e4195e",
-        "type": "Airship REST",
-        "z": "f6f2187d.f17ca8",
-        "g": "d1db19fcbfa380c9",
-        "name": "",
-        "version": "v1",
-        "method": "post_bookings",
-        "env": "",
-        "x": 610,
-        "y": 240,
-        "wires": [
-            [
-                "e6eeb22cdcc571f7"
-            ],
-            [
-                "3ae09512be2ee7e9"
-            ]
-        ]
-    },
-    {
-        "id": "04242047f35c04b7",
-        "type": "Airship REST",
-        "z": "f6f2187d.f17ca8",
-        "g": "d1db19fcbfa380c9",
-        "name": "",
-        "version": "v1",
-        "method": "get_bookings",
-        "env": "",
-        "x": 610,
-        "y": 360,
-        "wires": [
-            [
-                "ef08bba91c0303a4"
-            ],
-            [
-                "da9248b854410d94"
             ]
         ]
     },
@@ -244,8 +136,8 @@
         "complete": "false",
         "statusVal": "",
         "statusType": "auto",
-        "x": 770,
-        "y": 120,
+        "x": 730,
+        "y": 80,
         "wires": []
     },
     {
@@ -261,42 +153,8 @@
         "complete": "false",
         "statusVal": "",
         "statusType": "auto",
-        "x": 770,
-        "y": 160,
-        "wires": []
-    },
-    {
-        "id": "e6eeb22cdcc571f7",
-        "type": "debug",
-        "z": "f6f2187d.f17ca8",
-        "g": "d1db19fcbfa380c9",
-        "name": "",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "false",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 770,
-        "y": 220,
-        "wires": []
-    },
-    {
-        "id": "3ae09512be2ee7e9",
-        "type": "debug",
-        "z": "f6f2187d.f17ca8",
-        "g": "d1db19fcbfa380c9",
-        "name": "",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "false",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 770,
-        "y": 260,
+        "x": 730,
+        "y": 120,
         "wires": []
     },
     {
@@ -312,8 +170,8 @@
         "complete": "false",
         "statusVal": "",
         "statusType": "auto",
-        "x": 770,
-        "y": 340,
+        "x": 750,
+        "y": 240,
         "wires": []
     },
     {
@@ -329,8 +187,88 @@
         "complete": "false",
         "statusVal": "",
         "statusType": "auto",
-        "x": 770,
-        "y": 380,
+        "x": 750,
+        "y": 320,
         "wires": []
+    },
+    {
+        "id": "87e2a57a52f82ed1",
+        "type": "debug",
+        "z": "f6f2187d.f17ca8",
+        "g": "d1db19fcbfa380c9",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 730,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "607c1ec058ecfc02",
+        "type": "debug",
+        "z": "f6f2187d.f17ca8",
+        "g": "d1db19fcbfa380c9",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 750,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "82074952a73b236c",
+        "type": "Airship REST",
+        "z": "f6f2187d.f17ca8",
+        "g": "d1db19fcbfa380c9",
+        "name": "",
+        "version": "v1",
+        "method": "contact",
+        "env": "",
+        "x": 570,
+        "y": 120,
+        "wires": [
+            [
+                "56a6afeb11469433"
+            ],
+            [
+                "4c04fa2ca89f6bd7"
+            ],
+            [
+                "87e2a57a52f82ed1"
+            ]
+        ]
+    },
+    {
+        "id": "3138ec695635ec81",
+        "type": "Airship REST",
+        "z": "f6f2187d.f17ca8",
+        "g": "d1db19fcbfa380c9",
+        "name": "",
+        "version": "v1",
+        "method": "get_bookings",
+        "env": "",
+        "x": 570,
+        "y": 280,
+        "wires": [
+            [
+                "ef08bba91c0303a4"
+            ],
+            [
+                "607c1ec058ecfc02"
+            ],
+            [
+                "da9248b854410d94"
+            ]
+        ]
     }
 ]

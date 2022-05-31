@@ -34,8 +34,8 @@ module.exports = function (RED) {
         /**
 		 * Shows a status visual on the node
 		 * @param  {[string]} colour [colour of status (green, yellow, red)]
-		 * @param  {[string]} shape [shape of symbol]
-		 * @param  {[text]} text [text to show]
+		 * @param  {[string]} shape  [shape of symbol]
+		 * @param  {[string]} text   [text to show]
 		 */
         this.showstatus = (colour, shape, text) => {
 			this.status({fill:colour,shape:shape,text:text});
@@ -43,23 +43,63 @@ module.exports = function (RED) {
 
         /**
 		 * Outputs success
-		 * @param  {[string]} msg [success message]
+		 * @param  {[Object]} msg            [success complete msg]
+		 * @param  {[Object|string]} payload [success payload response]
+		 * @param  {[Object]} contact        [contact object]
 		 */
-        this.showsuccess = (msg,payload) => {
-            msg.payload = payload;
+        this.sendSuccess = (success_msg, payload, contact) => {
+            success_msg.payload = payload;
             this.showstatus("green", "dot", "Success");
-        	this.send([msg,null]);
+        	this.send([success_msg, this.outputToMonitor(success_msg, contact, true, success_msg), null]);
         };
 
         /**
-		 * Logs an error message
-		 * @param  {[string]} msg [error message]
+		 * Outputs error
+		 * @param  {[Object]} msg            [error complete msg]
+		 * @param  {[Object|string]} payload [error payload response]
+		 * @param  {[Object]} contact        [contact object]
 		 */
-        this.showerror = (msg,payload) => {
-            msg.payload = payload;
+        this.sendError = (err_msg, payload, contact) => {
+            err_msg.payload = payload;
             this.showstatus("red", "dot", "Error");
-        	this.send([null,msg]);
+        	this.send([null, this.outputToMonitor(err_msg, contact, false, payload), err_msg]);
         };
+
+        /**
+         * Returns a monitor output object
+		 * @param  {[Object]} original_msg [original msg]
+		 * @param  {[Object]} contact      [contact object]
+		 * @param  {[Boolean]} success     [is success or failed request]
+		 * @param  {[Object]} response     [response from API]
+         */
+        this.outputToMonitor = (original_msg, contact, success, response) => {
+
+            var monitor_msg = Object.assign({}, original_msg);
+            monitor_msg._msgid += "_monitor";
+            monitor_msg.rest_response = response
+
+            var payload = {
+                run_id: null,
+                account_id: contact.account_id ?? null,
+                units_ids: contact.units ? contact.units.map(unit => (unit.id)) : null,
+                integration_config_id: null,
+                index: `REST_Node_${success ? 'success' : 'failed'}`, 
+                data: 1,
+                token: null
+            }
+
+            var config = original_msg.config ?? null;
+            
+            if (config) {
+                payload.run_id = config.run_id ?? null;
+                payload.integration_config_id = config.integration_config_id ?? null;
+                payload.token = config.token ?? null;
+            }
+
+            monitor_msg.payload = payload;
+
+            return monitor_msg;
+        }   
 
 
         /**
@@ -71,7 +111,6 @@ module.exports = function (RED) {
         this.showstatus = (colour, shape, text) => {
 			this.status({fill:colour,shape:shape,text:text});
         };
-
 
         this.on('input',  (msg) => {
 
@@ -110,23 +149,21 @@ module.exports = function (RED) {
 
             // Set contact if is passed
             if (payload.contact && httpMethod === 'POST' ) {
-                let valid = airshipvalidation.validate(payload.contact);
 
-                valid.then((invalidFields) => {
+                airshipvalidation.validate(payload.contact).then((invalidFields) => {
                     if (invalidFields) msg.invalidFields = invalidFields;
 
-                    let res = airshiprest.call(url, httpMethod, payload);
+                    let res =  airshiprest.call(url, httpMethod, payload);
 
                     res.then((res) => {
-                        this.showsuccess(msg, res);
+                        this.sendSuccess(msg, res, payload.contact);
                     }).catch((err) => {
-                        this.showerror(msg, err);
-                    }).finally(() => {
+                        this.sendError(msg, err, payload.contact);
                     });
 
                 }).catch((err) => {
-                    this.showerror(msg, err);
-                }).finally(() => {
+                    this.showstatus("yellow", "dot", "validation error");
+                    this.send([null, this.outputToMonitor(msg, payload.contact, false, err), null]);
                 });
 
             } else {
@@ -134,9 +171,9 @@ module.exports = function (RED) {
                 let res = airshiprest.call(url, httpMethod, payload);
 
                 res.then((res)=>{
-                    this.showsuccess(msg,res);
+                        this.sendSuccess(msg,res, payload.body);
                 }).catch((err)=>{
-                    this.showerror(msg,err);
+                    this.sendError(msg,err, payload.body);
                 }).finally(()=>{
                 });
             }

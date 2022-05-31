@@ -4,8 +4,8 @@
         icon: "icons/airship.svg",
         color: '#F8665A',
         inputs: 1,
-        outputs: 2,
-        outputLabels:['success','error'],
+        outputs: 3,
+        outputLabels:['success','monitor','error'],
         defaults: {
             name:    { value: "" },
             version: { value: "" },
@@ -90,6 +90,9 @@ To make any other request, such as a POST that don't requires the contact object
     <h3>Input options</h3>
         
     <pre>
+
+config:'{"run_id":123, "integration_config_id":321, "token":"mytoken"}', // should be passed for monitor usage
+
 env:'dev', // can be passed here to select dev, staging or production (default)
 
 method:'contact', // can either be passed in here, or selected in the dropdown of the node
@@ -99,7 +102,8 @@ httpMethod:'POST', // can either be passed in here or automatically selected by 
 
     <h3>Outputs:</h3>
     <ul>
-        <li>1. success payload from API (see docs)</li>
-        <li>2. error</li>
+        <li>1. success payload from API</li>
+        <li>2. monitor payload </li>
+        <li>3. error paylod from API</li>
     </ul>
 </script>

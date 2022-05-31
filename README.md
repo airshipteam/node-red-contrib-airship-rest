@@ -34,8 +34,10 @@ msg.payload = {
 }
 ```
 
-### Options input
+### Input options
 This node allows some information to be passed directly to the `msg`:
+
+`msg.config` // is used by this node to gather information for the monitor/log node: `msg.config.run_id`,`msg.config.integration_config_id` and `msg.config.token`, 
 
 `msg.env: "dev"` // Can be passed to select dev, staging, or production environment (default)
 
@@ -48,7 +50,8 @@ This node allows some information to be passed directly to the `msg`:
 ### Outputs
 
 The first output will always be a success from the API response
-The second output will be an error either from the API or this node
+The second output is the object ready to be sent to the log/monitor node
+The third output will be an error either from the API or this node
 
 ## Examples
 Basic examples: ([airship_rest_example.json](https://raw.githubusercontent.com/airshipteam/node-red-contrib-airship-rest/50b33a6120f2e05f8de0509d714cb7b99a5305e7/examples/airship_rest_example.json))
