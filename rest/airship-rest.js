@@ -89,11 +89,21 @@ module.exports = function (RED) {
             }
 
             var config = original_msg.config ?? null;
+
+            let integration_id =
+            config.integration_config_id ? config.integration_config_id
+            : config.integration_id ? config.integration_id
+            : null;
+
+            let token = 
+            config.integration_token ? config.integration_token 
+            : config.token ? config.token
+            : null;
             
             if (config) {
-                payload.run_id = config.run_id ?? null;
-                payload.integration_config_id = config.integration_config_id ?? null;
-                payload.token = config.token ?? null;
+                payload.integration_id = integration_id;
+                payload.run_id         = config.run_id ?? null;
+                payload.token          = token;
             }
 
             monitor_msg.payload = payload;
