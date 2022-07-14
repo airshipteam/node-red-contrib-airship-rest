@@ -90,20 +90,20 @@ module.exports = function (RED) {
 
             var config = original_msg.config ?? null;
 
-            let integration_id =
+            let integration_config_id =
             config.integration_config_id ? config.integration_config_id
             : config.integration_id ? config.integration_id
             : null;
 
-            let token = 
+            let integration_token = 
             config.integration_token ? config.integration_token 
             : config.token ? config.token
             : null;
             
             if (config) {
-                payload.integration_id = integration_id;
-                payload.run_id         = config.run_id ?? null;
-                payload.token          = token;
+                payload.integration_config_id = integration_config_id;
+                payload.run_id                = config.run_id ?? null;
+                payload.token                 = integration_token;
             }
 
             monitor_msg.payload = payload;
