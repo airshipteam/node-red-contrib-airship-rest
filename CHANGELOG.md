@@ -1,3 +1,7 @@
+### 2.0.3 : Monitor fixes (20-07-2022)
+- Fixed a problem where the node would crash if no config property was set, now sends an error.
+- Added more options so the node can get the integration_id and token
+- Fixed the npm versioning
 ### 1.6.1 : Monitor output (30-05-2022)
 - Added a third output that sends an object with the monitor/log node information
 - Changed the error output to be the the third in the order, the second output is now the monitor one

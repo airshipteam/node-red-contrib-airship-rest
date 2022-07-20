@@ -37,7 +37,7 @@ msg.payload = {
 ### Input options
 This node allows some information to be passed directly to the `msg`:
 
-`msg.config` // is used by this node to gather information for the monitor/log node: `msg.config.run_id`,`msg.config.integration_config_id` and `msg.config.token`, 
+`msg.config` // MANDATORY for the node to work, is used to gather information for the monitor/log node: `msg.config.run_id`,`msg.config.integration_config_id` and `msg.config.token`, 
 
 `msg.env: "dev"` // Can be passed to select dev, staging, or production environment (default)
 
