@@ -55,14 +55,17 @@ module.exports = function (RED) {
 
         /**
 		 * Outputs error
-		 * @param  {[Object]} msg            [error complete msg]
-		 * @param  {[Object|string]} payload [error payload response]
-		 * @param  {[Object]} contact        [contact object]
+		 * @param  {[Object]} msg               [error complete msg]
+		 * @param  {[Object|string]} payload    [error payload response]
+		 * @param  {[Object]} contact           [contact object]
+		 * @param  {[Boolean]} exclude_monitor  [flag to exclude monitor]
 		 */
-        this.sendError = (err_msg, payload, contact) => {
+        this.sendError = (err_msg, payload, contact, exclude_monitor = false) => {
             err_msg.payload = payload;
             this.showstatus("red", "dot", "Error");
-        	this.send([null, this.outputToMonitor(err_msg, contact, false, payload), err_msg]);
+            let monitor_message = exclude_monitor === true ? null : this.outputToMonitor(err_msg, contact, false, payload);
+            
+        	this.send([null, monitor_message, err_msg]);
         };
 
         /**
@@ -122,7 +125,7 @@ module.exports = function (RED) {
 			this.status({fill:colour,shape:shape,text:text});
         };
 
-        this.on('input',  (msg) => {
+        this.on('input',  (msg, send, done) => {
 
         	this.showstatus("yellow","dot","Making call");
 
@@ -133,61 +136,65 @@ module.exports = function (RED) {
             let payload     = msg.payload ? msg.payload : this.payload;
             let env         = msg.env ? msg.env : this.env;
 
-            // build URL
-            let baseUrl = '';
-            switch(env){
-                case 'dev':
-                    baseUrl = 'https://api-airshipdev.airship.co.uk/';
-                    break;
-                case 'staging':
-                    baseUrl = 'https://api-airshipdev.airship.co.uk/';
-                    break;
-                case 'production':
-                    baseUrl = 'https://api.airship.co.uk/';
-                    break;
-		case 'fake-api':
-                    baseUrl = 'https://fake-api.airship.co.uk/';
-                    break;
-                default:
-                    baseUrl = 'https://api.airship.co.uk/';
-            }
+            if (msg.config === null || msg.config === undefined) {
+                this.sendError(msg, "Config property not found on message", null, true);
+            } else {
 
-            // correct REST method in case it's a dual name
-            if (method === 'post_bookings' || method === 'get_bookings') method = 'bookings';
-            let url = baseUrl + version + "/" + method;
+                // build URL
+                let baseUrl = '';
+                switch(env){
+                    case 'dev':
+                        baseUrl = 'https://api-airshipdev.airship.co.uk/';
+                        break;
+                    case 'staging':
+                        baseUrl = 'https://api-airshipdev.airship.co.uk/';
+                        break;
+                    case 'production':
+                        baseUrl = 'https://api.airship.co.uk/';
+                        break;
+                    case 'fake-api':
+                        baseUrl = 'https://fake-api.airship.co.uk/';
+                        break;
+                    default:
+                        baseUrl = 'https://api.airship.co.uk/';
+                }
+
+                // correct REST method in case it's a dual name
+                if (method === 'post_bookings' || method === 'get_bookings') method = 'bookings';
+                let url = baseUrl + version + "/" + method;
 
 
-            // Set contact if is passed
-            if (payload.contact && httpMethod === 'POST' ) {
+                // Set contact if is passed
+                if (payload.contact && httpMethod === 'POST' ) {
 
-                airshipvalidation.validate(payload.contact).then((invalidFields) => {
-                    if (invalidFields) msg.invalidFields = invalidFields;
+                    airshipvalidation.validate(payload.contact).then((invalidFields) => {
+                        if (invalidFields) msg.invalidFields = invalidFields;
 
-                    let res =  airshiprest.call(url, httpMethod, payload);
+                        let res =  airshiprest.call(url, httpMethod, payload);
 
-                    res.then((res) => {
-                        this.sendSuccess(msg, res, payload.contact);
+                        res.then((res) => {
+                            this.sendSuccess(msg, res, payload.contact);
+                        }).catch((err) => {
+                            this.sendError(msg, err, payload.contact);
+                        });
+
                     }).catch((err) => {
-                        this.sendError(msg, err, payload.contact);
+                        this.showstatus("yellow", "dot", "validation error");
+                        this.send([null, this.outputToMonitor(msg, payload.contact, false, err), null]);
                     });
 
-                }).catch((err) => {
-                    this.showstatus("yellow", "dot", "validation error");
-                    this.send([null, this.outputToMonitor(msg, payload.contact, false, err), null]);
-                });
+                } else {
+                    //Backwards compatibility / general methods that uses msg.payload.body instead of contact
+                    let res = airshiprest.call(url, httpMethod, payload);
 
-            } else {
-                //Backwards compatibility / general methods that uses msg.payload.body instead of contact
-                let res = airshiprest.call(url, httpMethod, payload);
-
-                res.then((res)=>{
-                        this.sendSuccess(msg,res, payload.body);
-                }).catch((err)=>{
-                    this.sendError(msg,err, payload.body);
-                }).finally(()=>{
-                });
+                    res.then((res)=>{
+                            this.sendSuccess(msg,res, payload.body);
+                    }).catch((err)=>{
+                        this.sendError(msg,err, payload.body);
+                    }).finally(()=>{
+                    });
+                }
             }
-
 	    });
      
     }
