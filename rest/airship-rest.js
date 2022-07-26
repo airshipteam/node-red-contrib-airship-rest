@@ -18,6 +18,7 @@ module.exports = function (RED) {
                 case 'contact':
                 case 'feedback/category':
                 case 'post_bookings':
+                case 'purchases':
                     return 'POST';
                     break;
                 case 'contacts':
