@@ -84,8 +84,6 @@ module.exports = function (RED) {
 
             var payload = {
                 run_id: null,
-                account_id: contact.account_id ?? null,
-                units_ids: contact.units ? contact.units.map(unit => (unit.id)) : null,
                 integration_config_id: null,
                 index: `REST_Node_${success ? 'success' : 'failed'}`, 
                 data: 1,
@@ -108,6 +106,11 @@ module.exports = function (RED) {
                 payload.integration_config_id = integration_config_id;
                 payload.run_id                = config.run_id ?? null;
                 payload.token                 = integration_token;
+            }
+
+            if (contact)  {
+                payload.account_id = contact.account_id ?? null;
+                payload.units_ids = contact.units ? contact.units.map(unit => (unit.id)) : null;
             }
 
             monitor_msg.payload = payload;

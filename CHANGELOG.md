@@ -1,3 +1,5 @@
+### 2.0.5 :  (09-08-2022)
+- Fixed a crash issue when the monitor do not receive the contact
 ### 2.0.3 : Monitor fixes (20-07-2022)
 - Fixed a problem where the node would crash if no config property was set, now sends an error.
 - Added more options so the node can get the integration_id and token
