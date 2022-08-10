@@ -1,6 +1,6 @@
 module.exports = function (RED) {
 
-    const airshiprest       = require('../libs/airshiprest');
+    const axios       = require('../libs/axios');
     const airshipvalidation = require('../libs/airshipvalidation');
 
     function RestCall(n) {
@@ -84,8 +84,6 @@ module.exports = function (RED) {
 
             var payload = {
                 run_id: null,
-                account_id: contact.account_id ?? null,
-                units_ids: contact.units ? contact.units.map(unit => (unit.id)) : null,
                 integration_config_id: null,
                 index: `REST_Node_${success ? 'success' : 'failed'}`, 
                 data: 1,
@@ -110,6 +108,11 @@ module.exports = function (RED) {
                 payload.token                 = integration_token;
             }
 
+            if (contact)  {
+                payload.account_id = contact.account_id ?? null;
+                payload.units_ids = contact.units ? contact.units.map(unit => (unit.id)) : null;
+            }
+
             monitor_msg.payload = payload;
 
             return monitor_msg;
@@ -126,7 +129,33 @@ module.exports = function (RED) {
 			this.status({fill:colour,shape:shape,text:text});
         };
 
-        this.on('input',  (msg, send, done) => {
+
+        /**
+		 *  Makes REST call and deals with response
+		 * @param  {[string]} url [url of the rest call]
+		 * @param  {[string]} httpMethod [http method, post, get, etc]
+		 * @param  {[object]} payload [payload to be send to node]
+		 * @param  {[object]} msg [msg to be passed on]
+		 */
+        this.restCall = async function (url, httpMethod, payload, msg) {
+            let body = 
+                payload.contact ? payload.contact :
+                payload.body ? payload.body :
+                null;
+
+            if (body === null) {
+                this.sendError(msg, "No body or contact found on request", body, true);
+            }
+            else {
+                await axios.call(url, httpMethod, payload).then((res) => {
+                        this.sendSuccess(msg, res, body);
+                    }).catch((err) => {
+                        this.sendError(msg, err, body);
+                    });
+            }
+        }
+
+        this.on('input',  (msg) => {
 
         	this.showstatus("yellow","dot","Making call");
 
@@ -145,7 +174,7 @@ module.exports = function (RED) {
                 let baseUrl = '';
                 switch(env){
                     case 'dev':
-                        baseUrl = 'https://api-airshipdev.airship.co.uk/';
+                        baseUrl = 'https://api-dev.airship.co.uk/';
                         break;
                     case 'staging':
                         baseUrl = 'https://api-airshipdev.airship.co.uk/';
@@ -171,13 +200,7 @@ module.exports = function (RED) {
                     airshipvalidation.validate(payload.contact).then((invalidFields) => {
                         if (invalidFields) msg.invalidFields = invalidFields;
 
-                        let res =  airshiprest.call(url, httpMethod, payload);
-
-                        res.then((res) => {
-                            this.sendSuccess(msg, res, payload.contact);
-                        }).catch((err) => {
-                            this.sendError(msg, err, payload.contact);
-                        });
+                        this.restCall(url, httpMethod, payload, msg);
 
                     }).catch((err) => {
                         this.showstatus("yellow", "dot", "validation error");
@@ -186,14 +209,7 @@ module.exports = function (RED) {
 
                 } else {
                     //Backwards compatibility / general methods that uses msg.payload.body instead of contact
-                    let res = airshiprest.call(url, httpMethod, payload);
-
-                    res.then((res)=>{
-                            this.sendSuccess(msg,res, payload.body);
-                    }).catch((err)=>{
-                        this.sendError(msg,err, payload.body);
-                    }).finally(()=>{
-                    });
+                    this.restCall(url, httpMethod, payload, msg);
                 }
             }
 	    });
