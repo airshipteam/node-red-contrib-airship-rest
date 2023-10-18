@@ -9,6 +9,8 @@
         defaults: {
             name:    { value: "" },
             version: { value: "" },
+            ingestMethod: { value: "" },
+            AWSKey:  { value: "" },
             method:  { value: "" },
             env:     { value: "" }
         },
@@ -57,6 +59,20 @@
             </optgroup>
         </select>
     </div>
+
+    <div class="form-row">
+        <label for="node-input-ingestMethod"><i class="fa fa-tag"></i> Data Ingest method</label>
+        <select id="node-input-ingestMethod">
+            <option value="">Select Data Ingest Method</option>
+            <option value="REST">REST</option>
+            <option value="AWS">AWS</option>
+        </select>
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-AWSKey"><i class="fa fa-tag"></i> AWS Key</label>
+        <input type="text" id="node-input-AWSKey" placeholder="AWS Key">
+    </div>
    
 </script>
 
@@ -101,6 +117,11 @@ env:'dev', // can be passed here to select dev, staging or production (default)
 method:'contact', // can either be passed in here, or selected in the dropdown of the node
 
 httpMethod:'POST', // can either be passed in here or automatically selected by chosen option on dropdown
+
+ingestMethod:'REST', // can either be passed in here or automatically selected by chosen option on dropdown
+
+AWSKey:'', // can either be passed in here or automatically or inserted in the node config
+
     </pre>
 
     <h3>Outputs:</h3>
