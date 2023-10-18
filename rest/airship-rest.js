@@ -203,6 +203,11 @@ module.exports = function (RED) {
                 if (method === 'post_bookings' || method === 'get_bookings') method = 'bookings';
                 let url = baseUrl + version + "/" + method;
 
+                // Check if AWS Key is set if ingest method is AWS
+                if (ingestMethod === 'AWS' && !AWSKey) {
+                    this.sendError(msg, "AWS Key must be set on REST node or passed on msg object", payload.contact, true);
+                    return;
+                }
 
                 // Set contact if is passed
                 if (payload.contact && httpMethod === 'POST' ) {
