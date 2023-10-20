@@ -26,11 +26,21 @@ const httpsKeepAliveAgent = new HttpsAgent({
  * @param  {[json]}   payload     [payload]
  * @return {[promise]}        
  */
-function call(url, httpMethod, payload){
+function call(url, httpMethod, payload, ingestMethod, AWSKey){
 
 return new Promise((resolve, reject) => {
     
         if ((payload.contact || payload.body) && payload.token) {
+
+            let headers = {
+                'Authorization': 'Bearer ' + payload.token,
+                'content-type': 'application/json' 
+            }
+
+            if (ingestMethod === 'AWS') {
+                headers['X-Integration-Auth'] = AWSKey;
+            }
+
             try {
                axios({
                     httpAgent: keepAliveAgent,
@@ -38,10 +48,7 @@ return new Promise((resolve, reject) => {
                     method: httpMethod,
                     url: url,
                     responseType: 'json',
-                    headers: {
-                        'Authorization': 'Bearer ' + payload.token,
-                        'content-type': 'application/json' 
-                    },
+                    headers: headers,
                     data: payload.contact ? payload.contact : payload.body
                 })
                 .then((response) => {

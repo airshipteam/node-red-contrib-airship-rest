@@ -10,6 +10,8 @@ module.exports = function (RED) {
 		this.method  = n.method;
 		this.payload = n.payload;
         this.version = n.version;
+        this.ingestMethod = n.ingestMethod;
+        this.AWSKey = n.AWSKey;
         this.env = n.env;
         this.status({});
         
@@ -137,7 +139,7 @@ module.exports = function (RED) {
 		 * @param  {[object]} payload [payload to be send to node]
 		 * @param  {[object]} msg [msg to be passed on]
 		 */
-        this.restCall = async function (url, httpMethod, payload, msg) {
+        this.restCall = async function (url, httpMethod, payload, msg, ingestMethod, AWSKey) {
             let body = 
                 payload.contact ? payload.contact :
                 payload.body ? payload.body :
@@ -147,7 +149,7 @@ module.exports = function (RED) {
                 this.sendError(msg, "No body or contact found on request", body, true);
             }
             else {
-                await axios.call(url, httpMethod, payload).then((res) => {
+                await axios.call(url, httpMethod, payload, ingestMethod, AWSKey).then((res) => {
                         this.sendSuccess(msg, res, body);
                     }).catch((err) => {
                         this.sendError(msg, err, body);
@@ -163,6 +165,8 @@ module.exports = function (RED) {
             let method      = msg.method ? msg.method : this.method;
             let httpMethod  = msg.httpMethod ? msg.httpMethod : this.httpMethod(method);
             let version     = msg.version ? msg.version : this.version;
+            let ingestMethod= msg.ingestMethod ? msg.ingestMethod : this.ingestMethod;
+            let AWSKey      = msg.AWSKey ? msg.AWSKey : this.AWSKey;
             let payload     = msg.payload ? msg.payload : this.payload;
             let env         = msg.env ? msg.env : this.env;
 
@@ -180,19 +184,30 @@ module.exports = function (RED) {
                         baseUrl = 'https://api-airshipdev.airship.co.uk/';
                         break;
                     case 'production':
-                        baseUrl = 'https://api.airship.co.uk/';
+                        if(ingestMethod === 'AWS')
+                            baseUrl = 'https://data-ingest.airship-api.com/';
+                        else
+                            baseUrl = 'https://api.airship.co.uk/';
                         break;
                     case 'fake-api':
                         baseUrl = 'https://fake-api.airship.co.uk/';
                         break;
                     default:
-                        baseUrl = 'https://api.airship.co.uk/';
+                        if(ingestMethod === 'AWS')
+                            baseUrl = 'https://data-ingest.airship-api.com/';
+                        else
+                            baseUrl = 'https://api.airship.co.uk/';
                 }
 
                 // correct REST method in case it's a dual name
                 if (method === 'post_bookings' || method === 'get_bookings') method = 'bookings';
                 let url = baseUrl + version + "/" + method;
 
+                // Check if AWS Key is set if ingest method is AWS
+                if (ingestMethod === 'AWS' && !AWSKey) {
+                    this.sendError(msg, "AWS Key must be set on REST node or passed on msg object", payload.contact, true);
+                    return;
+                }
 
                 // Set contact if is passed
                 if (payload.contact && httpMethod === 'POST' ) {
@@ -200,7 +215,7 @@ module.exports = function (RED) {
                     airshipvalidation.validate(payload.contact).then((invalidFields) => {
                         if (invalidFields) msg.invalidFields = invalidFields;
 
-                        this.restCall(url, httpMethod, payload, msg);
+                        this.restCall(url, httpMethod, payload, msg, ingestMethod, AWSKey);
 
                     }).catch((err) => {
                         this.showstatus("yellow", "dot", "validation error");
@@ -209,7 +224,7 @@ module.exports = function (RED) {
 
                 } else {
                     //Backwards compatibility / general methods that uses msg.payload.body instead of contact
-                    this.restCall(url, httpMethod, payload, msg);
+                    this.restCall(url, httpMethod, payload, msg, ingestMethod, AWSKey);
                 }
             }
 	    });
