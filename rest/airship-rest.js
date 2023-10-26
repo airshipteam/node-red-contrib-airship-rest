@@ -160,7 +160,7 @@ module.exports = function (RED) {
         this.on('input',  (msg) => {
 
             try {
-                if (!msg.ingestMethod || !this.ingestMethod)
+                if (!msg.ingestMethod && !this.ingestMethod)
                     throw new Error("ingestMethod property not provided. Set `msg.ingestMethod` or set it on the node configuration");
 
                 this.showstatus("yellow","dot","Making call");
