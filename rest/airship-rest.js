@@ -232,7 +232,7 @@ module.exports = function (RED) {
                     }
                 }
             } catch (err) {
-                this.sendError(msg, err, this.payload.contact, true);
+                this.sendError(msg, err, null, true);
             }
 	    });
      
