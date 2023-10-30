@@ -159,73 +159,80 @@ module.exports = function (RED) {
 
         this.on('input',  (msg) => {
 
-        	this.showstatus("yellow","dot","Making call");
+            try {
+                if (!msg.ingestMethod && !this.ingestMethod)
+                    throw new Error("ingestMethod property not provided. Set `msg.ingestMethod` or set it on the node configuration");
 
-            //set variables
-            let method      = msg.method ? msg.method : this.method;
-            let httpMethod  = msg.httpMethod ? msg.httpMethod : this.httpMethod(method);
-            let version     = msg.version ? msg.version : this.version;
-            let ingestMethod= msg.ingestMethod ? msg.ingestMethod : this.ingestMethod;
-            let AWSKey      = msg.AWSKey ? msg.AWSKey : this.AWSKey;
-            let payload     = msg.payload ? msg.payload : this.payload;
-            let env         = msg.env ? msg.env : this.env;
-
-            if (msg.config === null || msg.config === undefined) {
-                this.sendError(msg, "Config property not found on message", null, true);
-            } else {
-
-                // build URL
-                let baseUrl = '';
-                switch(env){
-                    case 'dev':
-                        baseUrl = 'https://api-dev.airship.co.uk/';
-                        break;
-                    case 'staging':
-                        baseUrl = 'https://api-airshipdev.airship.co.uk/';
-                        break;
-                    case 'production':
-                        if(ingestMethod === 'AWS')
-                            baseUrl = 'https://data-ingest.airship-api.com/';
-                        else
-                            baseUrl = 'https://api.airship.co.uk/';
-                        break;
-                    case 'fake-api':
-                        baseUrl = 'https://fake-api.airship.co.uk/';
-                        break;
-                    default:
-                        if(ingestMethod === 'AWS')
-                            baseUrl = 'https://data-ingest.airship-api.com/';
-                        else
-                            baseUrl = 'https://api.airship.co.uk/';
-                }
-
-                // correct REST method in case it's a dual name
-                if (method === 'post_bookings' || method === 'get_bookings') method = 'bookings';
-                let url = baseUrl + version + "/" + method;
-
-                // Check if AWS Key is set if ingest method is AWS
-                if (ingestMethod === 'AWS' && !AWSKey) {
-                    this.sendError(msg, "AWS Key must be set on REST node or passed on msg object", payload.contact, true);
-                    return;
-                }
-
-                // Set contact if is passed
-                if (payload.contact && httpMethod === 'POST' ) {
-
-                    airshipvalidation.validate(payload.contact).then((invalidFields) => {
-                        if (invalidFields) msg.invalidFields = invalidFields;
-
-                        this.restCall(url, httpMethod, payload, msg, ingestMethod, AWSKey);
-
-                    }).catch((err) => {
-                        this.showstatus("yellow", "dot", "validation error");
-                        this.send([null, this.outputToMonitor(msg, payload.contact, false, err), null]);
-                    });
-
+                this.showstatus("yellow","dot","Making call");
+                
+                //set variables
+                let method      = msg.method ? msg.method : this.method;
+                let httpMethod  = msg.httpMethod ? msg.httpMethod : this.httpMethod(method);
+                let version     = msg.version ? msg.version : this.version;
+                let ingestMethod= this.ingestMethod ? this.ingestMethod : msg.ingestMethod;
+                let AWSKey      = msg.AWSKey ? msg.AWSKey : this.AWSKey;
+                let payload     = msg.payload ? msg.payload : this.payload;
+                let env         = msg.env ? msg.env : this.env;
+    
+                if (msg.config === null || msg.config === undefined) {
+                    this.sendError(msg, "Config property not found on message", null, true);
                 } else {
-                    //Backwards compatibility / general methods that uses msg.payload.body instead of contact
-                    this.restCall(url, httpMethod, payload, msg, ingestMethod, AWSKey);
+    
+                    // build URL
+                    let baseUrl = '';
+                    switch(env){
+                        case 'dev':
+                            baseUrl = 'https://api-dev.airship.co.uk/';
+                            break;
+                        case 'staging':
+                            baseUrl = 'https://api-airshipdev.airship.co.uk/';
+                            break;
+                        case 'production':
+                            if(ingestMethod === 'AWS')
+                                baseUrl = 'https://data-ingest.airship-api.com/';
+                            else
+                                baseUrl = 'https://api.airship.co.uk/';
+                            break;
+                        case 'fake-api':
+                            baseUrl = 'https://fake-api.airship.co.uk/';
+                            break;
+                        default:
+                            if(ingestMethod === 'AWS')
+                                baseUrl = 'https://data-ingest.airship-api.com/';
+                            else
+                                baseUrl = 'https://api.airship.co.uk/';
+                    }
+    
+                    // correct REST method in case it's a dual name
+                    if (method === 'post_bookings' || method === 'get_bookings') method = 'bookings';
+                    let url = baseUrl + version + "/" + method;
+    
+                    // Check if AWS Key is set if ingest method is AWS
+                    if (ingestMethod === 'AWS' && !AWSKey) {
+                        this.sendError(msg, "AWS Key must be set on REST node or passed on msg object", payload.contact, true);
+                        return;
+                    }
+    
+                    // Set contact if is passed
+                    if (payload.contact && httpMethod === 'POST' ) {
+    
+                        airshipvalidation.validate(payload.contact).then((invalidFields) => {
+                            if (invalidFields) msg.invalidFields = invalidFields;
+    
+                            this.restCall(url, httpMethod, payload, msg, ingestMethod, AWSKey);
+    
+                        }).catch((err) => {
+                            this.showstatus("yellow", "dot", "validation error");
+                            this.send([null, this.outputToMonitor(msg, payload.contact, false, err), null]);
+                        });
+    
+                    } else {
+                        //Backwards compatibility / general methods that uses msg.payload.body instead of contact
+                        this.restCall(url, httpMethod, payload, msg, ingestMethod, AWSKey);
+                    }
                 }
+            } catch (err) {
+                this.sendError(msg, err, null, true);
             }
 	    });
      
